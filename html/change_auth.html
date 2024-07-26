@@ -1,0 +1,34 @@
+<html>
+<body>
+<form method=post action=safe/ enctype="multipart/form-data">
+To set the user name and password needed to access the safe:
+<br>
+Safe Username: <input name=username size=40 value="##ui_username##">
+<br>
+Safe Password: <input name=password size=40>  (keep blank to leave unchanged)
+<p>
+<input type=submit value="Set Auth Details" name=setauth>
+<p>
+If the change is accepted, you will need to login again.
+<hr>
+To talk to the Chaster Server you need to enter your API Developer token
+details.  See the README on how to find this
+<br>
+Developer token: <input name=token size=40 value="##token##">
+<p>
+<input type=submit value="Set API Details" name=setapi>
+<p>
+If the values are incorrect you will not be able to talk to the server
+and will need to correct the values.
+<p>
+The default endpoint this software talks to is the Chaster API.
+This may be changed here (if no lock is running) to another endpoint
+that supports the <tt>checklock.php</tt> endpoint.  NOTE: the server
+must also use the same CA so we can do secure communication.
+<p>
+<input name=apiurl size=50 value="##apiurl##">
+<p>
+<input type=submit value="Change API URL" name=setapiurl>
+</form>
+</body>
+</html>

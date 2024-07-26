@@ -1,0 +1,47 @@
+<html>
+<head>
+  <base target="main">
+  <title>Safe menu</title>
+</head>
+<body>
+<center><h2>Menu</h2>
+<p>
+<form method=post action=safe/ enctype="multipart/form-data">
+<input type=submit value=Status name=status>
+</form>
+<hr>
+<form method=post action=safe/ enctype="multipart/form-data">
+Open safe door:<br>
+<select name="duration">
+  <option value="5">5 seconds</option>
+  <option value="10">10 seconds</option>
+  <option value="20">20 seconds</option>
+  <option value="30">30 seconds</option>
+  <option value="60">60 seconds</option>
+</select>&nbsp;&nbsp;
+<input type=submit value="Open Safe" name=open>
+</form>
+<hr>
+<form method=post action=safe/ enctype="multipart/form-data">
+Set Lock Session<br>
+This is the lock ID value:<br>
+<input type=input name=session length=40><br>
+<input type=submit value="Set Lock" name=set_lock>
+</form>
+(See documentation on how to find this)
+<hr>
+<a href="change_auth">Change Safe Chaster Details</a>
+<br>
+<hr>
+<a href="change_ap">Change Safe Connection Details</a>
+<br>
+<hr>
+<a href="enable_update">Enable Safe Network Update</a>
+<br>
+<a href="disable_update">Disable Safe Network Update</a>
+<br>
+<hr>
+</center>
+</form>
+</body>
+</html>
