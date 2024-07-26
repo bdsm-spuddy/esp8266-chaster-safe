@@ -49,9 +49,9 @@ you'll get an error explaining what is wrong
 
 Typical errors:
 
-* 401: The developer token is wrong
-* 404: The lockID is wrong.
-* -1: Connectivity to the API isn't working.  This is where it gets
+** 401: The developer token is wrong
+** 404: The lockID is wrong.
+** -1: Connectivity to the API isn't working.  This is where it gets
 complicated because there could be many reasons.  One cause could be
 it literally can not reach the API server; there's a connectivity
 problem.  More common is that the TLS certificate failed to validate
@@ -112,7 +112,7 @@ the lockID, which will then let you open it.
 ```
 Lock id: 123456789abcdef123456789
   Title: Self-lock
-  State: locked
+  State: unlocked
 
 This lock is now available to unlock, and has been removed from the safe
 ```
