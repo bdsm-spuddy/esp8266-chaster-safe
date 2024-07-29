@@ -166,7 +166,7 @@ The T pin is Tx
 You need a 3.3V USB-serial adapter.   Remember that Tx on your adaper may
 need to be connected to Rx on the HW622 and vice versa.
 
-Now to get the machine into program mode, you need to join pins and then
+Now to get the machine into program mode, you need to join the B pins and then
 power on the board.  This _should_ be enough to get let `esptool` send
 flash updates.
 
