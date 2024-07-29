@@ -5,6 +5,7 @@ BOARD=esp8266:esp8266:nodemcuv2
 XTAL=:xtal=160,eesz=4M1M
 
 ESPTOOL=$(wildcard $(HOME)/.arduino15/packages/esp8266/hardware/esp8266/*/tools/esptool/esptool.py)
+BASICOTA=$(wildcard $(HOME)/.arduino15/packages/esp8266/hardware/esp8266/*/tools/espota.py)
 
 SRC = $(wildcard *.ino) $(wildcard *.h) html.h
 PROJECT = $(notdir $(CURDIR))
@@ -27,9 +28,10 @@ recompile: $(TARGET)
 
 netupload: $(TARGET)
 ifdef host
-	curl -F "image=@$(TARGET)" ${host}:8266/update
+	python3 $(BASICOTA) -i ${host} -P 8266 -d -f $(TARGET) ${pass}
 else
 	@echo Need host=target to be set - eg make $@ host=testesp
+	@echo 'If a password is set then also supply pass="-a password"'
 endif
 
 upload:
