@@ -1,0 +1,12 @@
+#!/bin/sh
+
+F=certs.ar
+
+echo 'static const unsigned char certs_ar[] PROGMEM = {'
+xxd -p $F | sed 's/\(..\)/0x\1,/g' | sed '$s/,$//'
+echo '};'
+
+s=`wc -c < $F`
+
+echo "#define SIZE_OF_CERTS $s"
+

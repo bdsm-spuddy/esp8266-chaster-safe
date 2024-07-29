@@ -121,22 +121,25 @@ This lock is now available to unlock, and has been removed from the safe
 
 ## Deploying the software
 
-The code repo contains a prebuilt `bin` and `img` files, built with 4M1M.
+The code repo contains a prebuilt `bin` files, built with 4M1M.  On
+first startup this version of the software will write out the cert
+files; there is no need to create or upload filesystem images 
 
 On unix this can be written, from the command line with an instruction
 similar to
 ```
-python3 ~/.arduino15/packages/esp8266/hardware/esp8266/*/tools/esptool/esptool.py --port=/dev/ttyUSB0 write_flash 0x0 esp8266-chaster-safe.ino.bin 0x300000 data.img
+python3 ~/.arduino15/packages/esp8266/hardware/esp8266/*/tools/esptool/esptool.py --port=/dev/ttyUSB0 write_flash 0x0 esp8266-chaster-safe.ino.bin
 ```
 
 Windows also has an equivalent `esptool.exe` command.
 
-If rebuilding from the IDE then you may need the [LittleFS uploader](https://github.com/earlephilhower/arduino-littlefs-upload), especially for IDEv2.
+Or you can use the `arduino-cli` command.  There is a Unix makefile included
+to make this easy (`make upload`).
 
-Ensure you have set the Crystal speed to 160 rather than the default, just
+
+If rebuilding from the IDE then ensure you have set the Crystal speed to 160 rather than the default, just
 to eek out that little extra performance (SSL is slow on these devices!).
 I also recommend a 4M1M model.
-
 
 ## Programming the HW-622
 
@@ -188,3 +191,52 @@ power cycling
                   +---+---+
 ```
 
+## Initial configuration
+
+You may want to do initial configuration and verification
+of the software because the serial console displays lots of useful debug
+output, and it's easy to get to this before you install into the safeo
+
+e.g.
+
+```
+Starting...
+Opening filesystem
+Creating cert store
+Writing
+To write:191944
+Complete
+Total size of FS is: 957314
+Used size of FS is: 193772
+File list:
+/certs.ar
+Finished
+Read length: 191944
+Loading cert store
+Number of CA certs read: 171
+Getting passwords from EEPROM
+Found in EEPROM:
+  UI Username >>>AAA<<<
+  UI Password >>>BBB<<<
+  Wifi SSID   >>>CCC<<<
+  Wifi Pswd   >>>DDD<<<
+  Safe Name   >>>EEE<<<
+  Dev Token   >>>FFF<<<
+  API URL     >>>https://api.chaster.app/locks/<<<
+  LockID      >>><<<
+  Relay Pin   >>>4<<<
+
+MAC: AA:BB:CC:DD:EE:FF
+Connecting to CCC ...
+1 2 3 4
+
+Connection established!
+IP address:     192.168.0.123
+Hostname:       ESP-DD:EE:FF
+Waiting for NTP time sync: ..
+Current time (UTC): Mon Jul 29 00:02:52 2024
+
+mDNS responder started
+TCP server started
+OTA service configured
+```

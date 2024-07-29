@@ -22,6 +22,7 @@
 
 #include "html.h"
 #include "version.h"
+#include "certs.h"
 
 // This is pin D6 on most boards; this is the pin that needs to be
 // connected to the relay
@@ -75,9 +76,10 @@ boolean allow_updates = false;
 
 // For communication to the API
 BearSSL::WiFiClientSecure client;
-// WiFiClient client;
 BearSSL::CertStore certStore;
 
+// If we want insecure communication via http
+// WiFiClient client;
 
 #define DEFAULT_API F("https://api.chaster.app/locks/")
 
@@ -428,17 +430,12 @@ boolean handleRequest()
     return true;
   }
 
-  // If this is a file on the filesystem then send it
-  if (FSTYPE.exists(path))
-  {
-    if (path == F("/")) path="/index.html";
-    Serial.println("Sending file " + path);
-    File file = FSTYPE.open(path, "r");
-    server.streamFile(file, "text/html");
-    file.close();
-  }
-  else if (path == F("/change_auth")) { display_auth(); }
-  else if (path == F("/change_ap"))   { set_ap(); }
+       if (path == F("/"))                 { send_text(FPSTR(index_html)); }
+  else if (path == F("/main_frame.html"))  { send_text(FPSTR(main_frame_html)); }
+  else if (path == F("/menu_frame.html"))  { send_text(FPSTR(menu_frame_html)); }
+  else if (path == F("/top_frame.html"))   { send_text(FPSTR(top_frame_html)); }
+  else if (path == F("/change_auth.html")) { display_auth(); }
+  else if (path == F("/change_ap.html"))   { set_ap(); }
   else if (path == F("/enable_update"))    { enable_update(1); }
   else if (path == F("/disable_update"))   { enable_update(0); }
   else if (path == F("/safe/"))
@@ -460,6 +457,16 @@ boolean handleRequest()
 }
 
 /////////////////////////////////////////
+void PROGMEMprint(File f, const unsigned char str[])
+{
+  int x=SIZE_OF_CERTS;
+  Serial.print("To write:");
+  Serial.println(x);
+  while(x--)
+  {
+    f.write(pgm_read_byte(str++));
+  }
+}
 
 void setup()
 {
@@ -475,13 +482,34 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
 
-  // Check filesystem
-  bool success = FSTYPE.begin();
-
-  if (!success) {
-    Serial.println("Error mounting the file system");
+  // To avoid needing to have a filesystem uploaded, we've embedded
+  // the cert store into this code.  We'll write it out at start
+  // time and then let BearSSL load it
+  Serial.println("Opening filesystem");
+  if (!FSTYPE.begin())
+  {
+    Serial.println("Failed!");
     return;
   }
+
+  if (!FSTYPE.format())
+  {
+    Serial.println("Failed to format!");
+    return;
+  }
+
+  Serial.println("Creating cert store");
+  File f=FSTYPE.open("/certs.ar","w");
+  if (!f)
+  {
+    Serial.println(F("Can not open file for writing"));
+    return;
+  }
+  Serial.println("Writing");
+  // NOTE: f.write(certs_ar);  doesn't work 'cos certs_ar is in PROGMEM 
+  PROGMEMprint(f,certs_ar);
+  Serial.println("Complete");
+  f.close();
 
   FSInfo fs_info; 
 
@@ -501,16 +529,31 @@ void setup()
   }
   Serial.println("Finished");
 
-  // Load certstore from FS
-  int numCerts = certStore.initCertStore(FSTYPE, "/certs.idx", "/certs.ar");
-  Serial.printf("Number of CA certs read: %d\r\n", numCerts);
-  if (numCerts == 0)
+  f=FSTYPE.open("/certs.ar","r");
+  if (!f)
   {
-    Serial.println(F("No certs found. Did you upload fs.img?"));
+    Serial.println(F("Can not open file for reading"));
+  }
+  else
+  {
+    Serial.print("Read length: ");
+    Serial.println(f.size());
+  }
+  f.close();
+
+  Serial.println("Loading cert store");
+  int numCerts = certStore.initCertStore(FSTYPE, "/certs.idx", "/certs.ar");
+  Serial.print("Number of CA certs read: ");
+  Serial.println(numCerts);
+  if (numCerts == 0)
+  { 
+    Serial.println(F("No certs found. Failed to instantiate filesystem!"));
     return; // Can't connect to anything w/o certs!
   }
   // Ensure that when we talk to Chaster we're validating the cert
   client.setCertStore(&certStore);
+//  client.setInsecure();
+
 
   Serial.println(F("Getting passwords from EEPROM"));
 
@@ -606,7 +649,7 @@ void setup()
     Serial.println("");
     struct tm timeinfo;
     gmtime_r(&now, &timeinfo);
-    Serial.print("Current time: ");
+    Serial.print("Current time (UTC): ");
     Serial.println(asctime(&timeinfo));
   }
   else
