@@ -57,9 +57,8 @@ Typical errors:
 complicated because there could be many reasons.  One cause could be
 it literally can not reach the API server; there's a connectivity
 problem.  More common is that the TLS certificate failed to validate
-properly.  This code expects the certificate to be signed by the 
-Google Trust Services "GTS Root 4".  If this changes then the safe
-will break!!
+properly.  This code includes all the root CAs that Firefox has (as
+of July 2024) so we _shouldn't_ see this... but maybe?!
 
 * Create the lock in the chaster web site
 
@@ -240,3 +239,9 @@ mDNS responder started
 TCP server started
 OTA service configured
 ```
+
+# DISCLAIMER
+
+If this code breaks for any reason and your safe can't be opened, then
+I will not be held liable.  This code is provided with no warrenty
+whatsoever.  Always have an emergency escape process
