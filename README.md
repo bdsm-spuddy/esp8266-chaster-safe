@@ -243,5 +243,5 @@ OTA service configured
 # DISCLAIMER
 
 If this code breaks for any reason and your safe can't be opened, then
-I will not be held liable.  This code is provided with no warrenty
+I will not be held liable.  This code is provided with no warranty
 whatsoever.  Always have an emergency escape process
