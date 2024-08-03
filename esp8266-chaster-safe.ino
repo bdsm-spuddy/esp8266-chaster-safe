@@ -67,6 +67,7 @@ enum safestate
   LOCKED
 };
 
+
 /////////////////////////////////////////
 
 // Global variables
@@ -152,15 +153,15 @@ void send_text(String s)
 
 bool good_api_result;
   
-void talk_to_api()
+void talk_to_api(String prefix="")
 {
   good_api_result = false;
 
   if (token == "")
-    return send_text(F("Missing developer token.  Please set this up"));
+    return send_text(prefix + F("Missing developer token.  Please set this up"));
 
   if (lockid == "")
-    return send_text(F("No lock has been set up.  The safe may be opened."));
+    return send_text(prefix + F("No lock has been set up.  The safe may be opened."));
 
   HTTPClient https;
   https.useHTTP10(true);
@@ -176,7 +177,7 @@ void talk_to_api()
     if (httpCode != 200)
     {
       https.end();
-      return send_text(F("Problems talking to API: Response ") + String(httpCode) + " " + https.errorToString(httpCode) + F("<br>For reference, 401 likely means developer token is wrong, 404 likely means lockID is wrong"));
+      return send_text(prefix + F("Problems talking to API: Response ") + String(httpCode) + " " + https.errorToString(httpCode) + F("<br>For reference, 401 likely means developer token is wrong, 404 likely means lockID is wrong"));
     }
 
     // Now we need to parse the JSON data
@@ -191,7 +192,7 @@ void talk_to_api()
     DeserializationError error = deserializeJson(raw_data, https.getStream(), DeserializationOption::Filter(filter));
 
     if (error)
-      return send_text(F("Unable to decode JSON! ") + String(error.c_str()));
+      return send_text(prefix + F("Unable to decode JSON! ") + String(error.c_str()));
 
     Serial.println(F("JSON is:"));
     serializeJsonPretty(raw_data, Serial);
@@ -201,7 +202,7 @@ void talk_to_api()
     String l = raw_data["title"];
     String stat = raw_data["status"];
     if (id == "")
-      return send_text(F("No lock found for ID ") + String(lockid) + F("!  Either the lockID is wrong or you deleted it..."));
+      return send_text(prefix + F("No lock found for ID ") + String(lockid) + F("!  Either the lockID is wrong or you deleted it..."));
 
     good_api_result=true;
 
@@ -218,10 +219,10 @@ void talk_to_api()
     }
 
     https.end();
-    return send_text(s);
+    return send_text(prefix + s);
   }
   else
-    return send_text(F("Could not connect to server"));
+    return send_text(prefix + F("Could not connect to server"));
 }
 
 /////////////////////////////////////////
@@ -231,16 +232,9 @@ void talk_to_api()
 // global server state variable to read the request.  This only works
 // 'cos the main loop is single threaded!
 
-void status()
+void status(String prefix="")
 {
-  return talk_to_api();
-
-#if 0
-  if (state==UNLOCKED)
-    send_text(F("Safe can be opened"));
-  else
-    send_text(F("Lock is still running; safe is locked"));
-#endif
+  return talk_to_api(prefix);
 }
 
 void opensafe()
@@ -441,6 +435,7 @@ boolean handleRequest()
   else if (path == F("/safe/"))
   {
          if (server.hasArg("status"))     { status(); }
+         if (server.hasArg("version"))    { status(String(MODEL) + " " + VERSION + ","); }
     else if (server.hasArg("open"))       { opensafe(); }
     else if (server.hasArg("setauth"))    { set_auth(); }
     else if (server.hasArg("setapi"))     { set_api(); }

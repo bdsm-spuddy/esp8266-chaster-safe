@@ -1,1 +1,2 @@
-#define VERSION F("2024-07-28.1")
+String VERSION="2024-08-03.1";
+String MODEL="Chaster";
