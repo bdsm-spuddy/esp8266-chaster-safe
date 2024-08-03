@@ -420,7 +420,7 @@ boolean handleRequest()
   if (ui_username != "" && !server.authenticate(ui_username.c_str(), ui_pswd.c_str()))
   {
     Serial.println(F("Bad authentication; login needed"));
-    server.requestAuthentication();
+    server.requestAuthentication(BASIC_AUTH,"safe");
     return true;
   }
 
